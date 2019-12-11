@@ -30,10 +30,10 @@ namespace CrowDo.Entities
         public string Media { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public Packages Packages { get; set; }
+        public List<Packages> Packages { get; set; }
         public string NumberOfRequested { get; set; }
-        //public int NumberOfVisits{get;set;}
-        //public string isDeleted {get;set;}
+        public int NumberOfVisits { get; set; }
+        public string IsDeleted { get; set; }
     }
     public class Funding
     {

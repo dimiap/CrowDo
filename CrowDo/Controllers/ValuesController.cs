@@ -21,99 +21,88 @@ namespace CrowDo.Controllers
             _context = context;
             _logger = logger;
         }
-        // GET api/values
+        //komple
         [HttpGet("excel/users")]
-        public void PostUsersFromExcelToDB()
+        public List<Member> PostUsersFromExcelToDB()
         {
-            using(var db = new CrowDoDB())
-            {
-                List<UserDTO> user = CrowDoDTO.LoadUsersFromExcel();
-                List<Member> members = _context.ConvertMemberFromDTO(user);
-                db.Members.AddRange(members);
-                db.SaveChanges();
-            }
+            List<UserDTO> user = CrowDoDTO.LoadUsersFromExcel();
+            List<Member> members = _context.ConvertMemberFromDTO(user);
+            return members;
         }
+        //komple
         [HttpGet("excel/projects")]
         public List<Project> PostProjectsFromExcelToDB()
         {
-            List<Project> project = new List<Project>();
-            using (var db = new CrowDoDB())
-            {
-                List<ProjectDTO> projects = CrowDoDTO.LoadProjectsFromExcel();
-                project= _context.ConvertProjectFromDTO(projects);
-                db.Projects.AddRange(project);
-                db.SaveChanges();
-            }
+            List<ProjectDTO> projects = CrowDoDTO.LoadProjectsFromExcel();
+            List<Project> project = _context.ConvertProjectFromDTO(projects);
             return project;
         }
+        //komple
         [HttpGet("excel/funding")]
         public List<Funding> GetFundingFromExcel()
         {
-            List<Funding> project = new List<Funding>();
-            using (var db = new CrowDoDB())
-            {
-                List<FundingDTO> projects = CrowDoDTO.LoadFundingFromExcel();
-                project = _context.ConvertFundingFromDTO(projects);
-                db.Fundings.AddRange(project);
-                db.SaveChanges();
-            }
-            return project;
+            List<FundingDTO> fundings = CrowDoDTO.LoadFundingFromExcel();
+            List<Funding> funding = _context.ConvertFundingFromDTO(fundings);
+            return funding;
         }
+        //komple
         [HttpGet("excel/packages")]
         public List<Packages> GetPackagesFromExcel()
         {
-            List<Packages> packages = new List<Packages>();
-            using (var db = new CrowDoDB())
-            {
-                List<PackagesDTO> package = CrowDoDTO.LoadPackagesFromExcel();
-                packages = _context.ConvertPackagesFromDTO(package);
-                db.Packages.AddRange(packages);
-                db.SaveChanges();
-            }
+            List<PackagesDTO> package = CrowDoDTO.LoadPackagesFromExcel();
+            List<Packages> packages = _context.ConvertPackagesFromDTO(package);
             return packages;
         }
+        //komple
         [HttpGet("projects")]
         public List<Project> GetAllProjects()
         {
             return _context.GetProjectsFromDB();
         }
+        //komple
         [HttpGet("projects/{id}")]
         public List<Project> GetProjectById(int id)
         {
             return _context.GetProjectsFromDB(id);
         }
-        [HttpGet("projects/{name}")]
+        //komple
+        [HttpGet("projects1/{name}")]
         public List<Project> GetProjectsByText(string name)
         {
             return _context.GetProjectsFromDB(name);
         }
-        [HttpGet("projects/{category}")]
+        //den exoume categories
+        [HttpGet("project/{category}")]
         public List<Project> GetProjectsByCategory(string category)
         {
             return Databases.GetProjectsFromDBByCategory(category);
         }
-        [HttpGet("fundings")]
+        //na vro tropo na treksei
+        [HttpPost("fundings")]
         public List<Funding> GetFundings(Member member)
         {
             return _context.ViewFundedProjects(member);
         }
-        [HttpPost("fund-project/{id}")]
-        public void FundAProject(Funding funding)
+        //thema me to convert tou value
+        [HttpPost("fund-project")]
+        public string FundAProject(Funding funding)
         {
-            _context.FundAproject(funding);
+            return _context.FundAproject(funding);
         }
-
+        //komple
         [HttpDelete("delete/project/{id}")]
         public string DeleteProject(int id)
         {
             return _context.DeleteProject(id);
         }
+        //komple
         [HttpDelete("delete/member/{id}")]
         public string DeleteMember(int id)
         {
             return _context.DeleteUser(id);
         }
-        [HttpPut("edit/project/{id}/{title}/{startdate}/{packages}/{norequested}/{category}/{description}/{enddate}/{media}")]
+
+        [HttpPut("edit/project")]
         public string UpdateJournalist(Project project)
         {
             return _context.UpdateProject(project);
@@ -123,6 +112,28 @@ namespace CrowDo.Controllers
         {
             _context.AddProject(p);
             return "project has been added";
+        }
+        [HttpPost("member/signup")]
+        public string SignUp(Member member)
+        {
+            return _context.SignUp(member);
+        }
+        //komple
+        [HttpGet("member/login/{username}/{password}")]
+        public string LogIn(string username,string password)
+        {
+            return _context.LogIn(username,password);
+        }
+        //komple
+        [HttpGet("member/{id}")]
+        public List<Member> ShowUser(int id)
+        {
+            return _context.ShowUser(id);
+        }
+        [HttpPut("edit/member/{id}")]
+        public string EditMember(Member member)
+        {
+            return _context.EditUser(member);
         }
     }
 }

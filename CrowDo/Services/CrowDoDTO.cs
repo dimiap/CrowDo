@@ -78,7 +78,6 @@ namespace CrowDo.Services
             ISheet sheet = hssfwb.GetSheet("Projects");
             for (int row = 1; row <= sheet.LastRowNum; row++)
             {
-                //null is when the row only contains empty cells
                 if (sheet.GetRow(row) != null)
                 {
                     ProjectDTO project = new ProjectDTO
@@ -115,7 +114,7 @@ namespace CrowDo.Services
                         Backer = sheet.GetRow(row).GetCell(0).StringCellValue,
                         Project = sheet.GetRow(row).GetCell(1).StringCellValue,
                         Package = sheet.GetRow(row).GetCell(2).StringCellValue,
-                        Number = Int32.Parse(sheet.GetRow(row).GetCell(3).StringCellValue)
+                        Number = (int) sheet.GetRow(row).GetCell(3).NumericCellValue
                         };
                     fundings.Add(funding);
                 }
@@ -137,11 +136,12 @@ namespace CrowDo.Services
                 //null is when the row only contains empty cells
                 if (sheet.GetRow(row) != null)
                 {
+                    DataFormatter formatter = new DataFormatter();
                     PackagesDTO package = new PackagesDTO
                     {
                         Code = sheet.GetRow(row).GetCell(0).StringCellValue,
                         Title = sheet.GetRow(row).GetCell(1).StringCellValue,
-                        Cost = Int32.Parse(sheet.GetRow(row).GetCell(2).StringCellValue),
+                        Cost = (int)sheet.GetRow(row).GetCell(2).NumericCellValue,
                         Details = sheet.GetRow(row).GetCell(3).StringCellValue,
                         Rewards = sheet.GetRow(row).GetCell(4).StringCellValue
                     };
