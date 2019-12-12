@@ -77,13 +77,13 @@ namespace CrowDo.Controllers
         {
             return Databases.GetProjectsFromDBByCategory(category);
         }
-        //na vro tropo na treksei
-        [HttpPost("fundings")]
-        public List<Funding> GetFundings(Member member)
+        //komple
+        [HttpGet("fundings/{id}")]
+        public List<Funding> GetFundings(int id)
         {
-            return _context.ViewFundedProjects(member);
+            return _context.ViewFundedProjects(id);
         }
-        //thema me to convert tou value
+        //komple
         [HttpPost("fund-project")]
         public string FundAProject(Funding funding)
         {
@@ -101,19 +101,20 @@ namespace CrowDo.Controllers
         {
             return _context.DeleteUser(id);
         }
-
-        [HttpPut("edit/project")]
-        public string UpdateJournalist(Project project)
+        //komple 
+        [HttpPut("edit/project/{id}")]
+        public string UpdateJournalist(int id, Project project)
         {
-            return _context.UpdateProject(project);
+            return _context.UpdateProject(id,project);
         }
+        //komple
         [HttpPost("project/new")]
         public string SetProject(Project p)
         {
-            _context.AddProject(p);
-            return "project has been added";
+            return _context.AddProject(p);
         }
-        [HttpPost("member/signup")]
+        //komple
+        [HttpPost("signup/member")]
         public string SignUp(Member member)
         {
             return _context.SignUp(member);
@@ -130,10 +131,11 @@ namespace CrowDo.Controllers
         {
             return _context.ShowUser(id);
         }
+        //komple
         [HttpPut("edit/member/{id}")]
-        public string EditMember(Member member)
+        public string EditMember(int id,Member member)
         {
-            return _context.EditUser(member);
+            return _context.EditUser(id,member);
         }
     }
 }

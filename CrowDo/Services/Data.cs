@@ -2,6 +2,7 @@
 using System.Linq;
 using CrowDo.Entities;
 using CrowDo.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace CrowDo.Services
 {
@@ -39,7 +40,7 @@ namespace CrowDo.Services
                         StartDate = item.StartDate,
                         NumberOfRequested = item.NumberOfRequested
                     };
-                    Member member = db.Members.Where(x => x.Code.Equals(item.Creator)).First();
+                    Member member = db.Members.Where(x => x.Code.Equals(item.Creator)).FirstOrDefault();
                     if (member == null) continue;
                     project.Creator = member;
                     //packages
@@ -49,7 +50,7 @@ namespace CrowDo.Services
                     List<Packages> packages = new List<Packages>();
                     for (int i = 0; i == pack.Count(); i++)
                     {
-                        package = db.Packages.Where(x => x.Code.Equals(pack[i])).First();
+                        package = db.Packages.Where(x => x.Code.Equals(pack[i])).FirstOrDefault();
                         packages.Add(package);
                     }
                     if (package == null) continue;
@@ -70,13 +71,13 @@ namespace CrowDo.Services
                     {
                         Number = item.Number
                     };
-                    Member member = db.Members.Where(x => x.Code.Equals(item.Backer)).First();
+                    Member member = db.Members.Where(x => x.Code.Equals(item.Backer)).FirstOrDefault();
                     if (member == null) continue;
                     funding.Backer = member;
-                    Project project = db.Projects.Where(x => x.Code.Equals(item.Project)).First();
+                    Project project = db.Projects.Where(x => x.Code.Equals(item.Project)).FirstOrDefault();
                     if (project == null) continue;
                     funding.Project = project;
-                    Packages packages = db.Packages.Where(x => x.Code.Equals(item.Package)).First();
+                    Packages packages = db.Packages.Where(x => x.Code.Equals(item.Package)).FirstOrDefault();
                     if (packages == null) continue;
                     funding.Package = packages;
                     db.Fundings.Add(funding);
@@ -116,7 +117,7 @@ namespace CrowDo.Services
         {
             using (var db = new CrowDoDB())
             {
-                return db.Projects.Where(p => p.ProjectId == id).ToList();
+                return db.Projects.Where(p => p.ProjectId == id && p.IsDeleted!="inactive").ToList();
             }
         }
         public List<Project> GetProjectsFromDB(string name)
@@ -137,7 +138,7 @@ namespace CrowDo.Services
         {
             using (var db = new CrowDoDB())
             {
-                Project p = db.Projects.Where(a => a.ProjectId == id).First();
+                Project p = db.Projects.Where(a => a.ProjectId == id).FirstOrDefault();
                 if (p == null) return "not exists";
                 p.IsDeleted = "inactive";
                 db.SaveChanges();
@@ -148,78 +149,69 @@ namespace CrowDo.Services
         {
             using (var db = new CrowDoDB())
             {
-                Member m = db.Members.Where(a => a.MemberId == id).First();
+                Member m = db.Members.Where(a => a.MemberId == id).FirstOrDefault();
                 if (m == null) return "not exists";
                 m.IsDeleted = "inactive";
                 db.SaveChanges();
             }
             return "deleted";
         }
-        public string UpdateProject(Project project)
+        public string UpdateProject(int id,Project project)
         {
             using (var db = new CrowDoDB())
             {
-                Project p = db.Projects.Where(a => a.ProjectId == project.ProjectId).First();
+                Project p = db.Projects.Where(a => a.ProjectId == id).FirstOrDefault();
                 if (p == null) return "not exists";
-                p.Title = project.Title;
-                p.StartDate = project.StartDate;
-
-                //Packages packages = new Packages();
-                //p.Packages = project.Packages.Split(',').ToList();
-                //foreach (var item in pack)
-                //{
-                //    p.Packages.Code = pack[int.Parse(item)];
-                //}
-                //List<string> requested = new List<string>();
-                //requested = project.NumberOfRequested.Split(',').ToList();
-                //foreach(var item in requested)
-                //{
-                //    p.NumberOfRequested = requested[int.Parse(item)];
-                //}
-                p.Category = project.Category;
-                p.Description = project.Description;
-                p.EndDate = project.EndDate;
-                p.Media = project.Media;
-                db.SaveChanges();
-
+                else
+                {
+                    p.Title = project.Title;
+                    p.StartDate = project.StartDate;
+                    p.Packages = project.Packages;
+                    p.NumberOfRequested = project.NumberOfRequested;
+                    p.Category = project.Category;
+                    p.Description = project.Description;
+                    p.EndDate = project.EndDate;
+                    p.Media = project.Media;
+                    db.SaveChanges();
+                    return "updated";
+                }
             }
-            return "updated";
+            
         }
-        public void AddProject(Project p)
+        public string AddProject(Project p)
         {
             using (var db = new CrowDoDB())
             {
+                Member member = db.Members.Where(x => x.Code.Equals(p.Creator.Code)).FirstOrDefault();
+                if (member == null) return "not user found";
+                p.Creator = member;
                 db.Projects.Add(p);
-                Member member = new Member();
-                member.Projects.Add(p);
                 db.SaveChanges();
+                return "project created";
             }
         }
         public string FundAproject(Funding f)
         {
             using (var db = new CrowDoDB())
             {
-                Funding funding = new Funding
-                {
-                    Number = f.Number
-                };
-                Member member = db.Members.Single(x => x.Code.Equals(f.Backer));
+                Member member = db.Members.Where(x => x.Code.Equals(f.Backer.Code)).FirstOrDefault();
                 if (member == null) return "not a valid member";
-                funding.Backer = member;
-                Project project = db.Projects.Single(x => x.Code.Equals(f.Project));
-                funding.Project = project;
-                Packages packages = db.Packages.Single(x => x.Code.Equals(f.Package));
-                funding.Package = packages;
-                db.Fundings.Add(funding);
+                f.Backer = member;
+                Project project = db.Projects.Where(x => x.Code.Equals(f.Project.Code)).FirstOrDefault();
+                f.Project = project;
+                Packages packages = db.Packages.Where(x => x.Code.Equals(f.Package.Code)).FirstOrDefault();
+                f.Package = packages;
+                db.Fundings.Add(f);
+                db.SaveChanges();
                 return "saved";
             }
         }
-        public List<Funding> ViewFundedProjects(Member member)
+        public List<Funding> ViewFundedProjects(int id)
         {
             using (var db = new CrowDoDB())
             {
                 return db.Fundings
-                    .Where(m => m.Backer.Code == member.Code)
+                    .Where(m => m.Backer.MemberId == id)
                     .ToList();
             }
         }
@@ -267,7 +259,6 @@ namespace CrowDo.Services
         {
             using (var db = new CrowDoDB())
             {
-                Member member = new Member();
                 if (db.Members.Any(x => x.Username.Equals(m.Username)))
                     return "already a user";
                 if (db.Members.Any(x => x.Email.Equals(m.Email)))
@@ -287,11 +278,11 @@ namespace CrowDo.Services
                 return db.Members.Where(x => (x.MemberId == id) && (x.IsDeleted!="inactive")).ToList();
             }
         }
-        public string EditUser(Member member)
+        public string EditUser(int id,Member member)
         {
             using (var db = new CrowDoDB())
             {
-                Member m = db.Members.Where(a => (a.MemberId == member.MemberId) && (a.IsDeleted!="inactive")).First();
+                Member m = db.Members.Where(a => a.MemberId == id).FirstOrDefault();
                 if (m == null) return "user not exists";
                 else
                 {
