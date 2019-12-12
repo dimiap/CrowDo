@@ -21,7 +21,6 @@ namespace CrowDo.Controllers
             _context = context;
             _logger = logger;
         }
-        //komple
         [HttpGet("excel/users")]
         public List<Member> PostUsersFromExcelToDB()
         {
@@ -29,7 +28,6 @@ namespace CrowDo.Controllers
             List<Member> members = _context.ConvertMemberFromDTO(user);
             return members;
         }
-        //komple
         [HttpGet("excel/projects")]
         public List<Project> PostProjectsFromExcelToDB()
         {
@@ -37,7 +35,6 @@ namespace CrowDo.Controllers
             List<Project> project = _context.ConvertProjectFromDTO(projects);
             return project;
         }
-        //komple
         [HttpGet("excel/funding")]
         public List<Funding> GetFundingFromExcel()
         {
@@ -45,7 +42,6 @@ namespace CrowDo.Controllers
             List<Funding> funding = _context.ConvertFundingFromDTO(fundings);
             return funding;
         }
-        //komple
         [HttpGet("excel/packages")]
         public List<Packages> GetPackagesFromExcel()
         {
@@ -53,25 +49,21 @@ namespace CrowDo.Controllers
             List<Packages> packages = _context.ConvertPackagesFromDTO(package);
             return packages;
         }
-        //komple
         [HttpGet("projects")]
         public List<Project> GetAllProjects()
         {
             return _context.GetProjectsFromDB();
         }
-        //komple
         [HttpGet("projects/{id}")]
         public List<Project> GetProjectById(int id)
         {
             return _context.GetProjectsFromDB(id);
         }
-        //komple
         [HttpGet("projects1/{name}")]
         public List<Project> GetProjectsByText(string name)
         {
             return _context.GetProjectsFromDB(name);
         }
-        //den exoume categories
         [HttpGet("project/{category}")]
         public List<Project> GetProjectsByCategory(string category)
         {

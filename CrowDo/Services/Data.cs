@@ -131,6 +131,8 @@ namespace CrowDo.Services
         {
             using (var db = new CrowDoDB())
             {
+                if (category.Equals("Uncategorised"))
+                    return db.Projects.Where(p => p.Category == null && p.IsDeleted != "inactive").ToList();
                 return db.Projects.Where(p => (p.Category == category) && (p.IsDeleted != "inactive")).ToList();
             }
         }
